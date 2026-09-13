@@ -24,16 +24,25 @@ if [ ! -f .env ]; then
 fi
 
 docker compose build --pull
-docker compose up -d postgres redis bootstrap
+docker compose up -d postgres redis
+
+echo "Waiting for PostgreSQL..."
+for i in {1..30}; do
+  if docker compose exec -T postgres pg_isready -U "${POSTGRES_USER:-haber}" -d "${POSTGRES_DB:-haber}" >/dev/null 2>&1; then
+    break
+  fi
+  sleep 2
+done
+
 docker compose run --rm bootstrap
 docker compose up -d app api
 
 echo
-printf '%s\n' '=== HABERRSS STATUS ==='
+echo '=== HABERRSS STATUS ==='
 docker compose ps
-printf '%s\n' '=== HEALTH ==='
+echo '=== HEALTH ==='
 curl -fsS http://127.0.0.1:8080/health || true
 echo
-printf '%s\n' '=== TOP TRENDS ==='
+echo '=== TOP TRENDS ==='
 curl -fsS 'http://127.0.0.1:8080/api/top-trends?limit=10' || true
 echo
