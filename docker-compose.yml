@@ -13,7 +13,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
-
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -25,7 +24,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
-
   bootstrap:
     build: .
     restart: "no"
@@ -34,11 +32,14 @@ services:
       postgres:
         condition: service_healthy
     command: ["python", "-m", "haberrss.bootstrap"]
-
   app:
     build: .
     restart: unless-stopped
     env_file: .env
+    volumes:
+      - runtime_settings:/app/runtime
+    environment:
+      RUNTIME_SETTINGS_PATH: /app/runtime/runtime-settings.json
     depends_on:
       postgres:
         condition: service_healthy
@@ -47,7 +48,6 @@ services:
       bootstrap:
         condition: service_completed_successfully
     command: ["python", "-m", "haberrss.worker"]
-
   telegram:
     build: .
     restart: unless-stopped
@@ -62,11 +62,14 @@ services:
     command: ["python", "-m", "haberrss.telegram_signal"]
     volumes:
       - telegram_session:/data/telegram
-
   api:
     build: .
     restart: unless-stopped
     env_file: .env
+    volumes:
+      - runtime_settings:/app/runtime
+    environment:
+      RUNTIME_SETTINGS_PATH: /app/runtime/runtime-settings.json
     depends_on:
       postgres:
         condition: service_healthy
@@ -75,8 +78,8 @@ services:
     command: ["uvicorn", "haberrss.api:app", "--host", "0.0.0.0", "--port", "8080"]
     ports:
       - "127.0.0.1:8080:8080"
-
 volumes:
   postgres_data:
   redis_data:
   telegram_session:
+  runtime_settings:
