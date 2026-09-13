@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-09-13T19:02:17+03:00",
+  "host": "109-236-48-134.diyovm.com",
+  "git_commit": "4832540",
+  "app_status": "running",
+  "app_health": "healthy",
+  "postgres_ok": true,
+  "redis_ok": true,
+  "news": 0,
+  "sources": 33,
+  "story_clusters": 3072,
+  "cluster_articles": 0,
+  "trends": 0,
+  "news_1h": 0,
+  "news_24h": 0,
+  "gdelt_errors_last_500": 5,
+  "app_errors_last_500": 15,
+  "restarting_services": 0,
+  "cluster_p0": false,
+  "gdelt_fail": true
+}
