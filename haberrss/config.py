@@ -13,6 +13,7 @@ class Settings:
     admin_token: str = os.getenv("ADMIN_TOKEN", "")
     scan_interval_seconds: int = max(10, int(os.getenv("SCAN_INTERVAL_SECONDS", "20")))
     trend_interval_seconds: int = max(5, int(os.getenv("TREND_INTERVAL_SECONDS", "5")))
+    signal_interval_seconds: int = max(30, int(os.getenv("SIGNAL_INTERVAL_SECONDS", "30")))
     source_timeout_seconds: int = max(3, int(os.getenv("SOURCE_TIMEOUT_SECONDS", "8")))
     max_articles_per_source: int = max(10, int(os.getenv("MAX_ARTICLES_PER_SOURCE", "100")))
     publish_mode: str = os.getenv("PUBLISH_MODE", "manual")
