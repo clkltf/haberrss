@@ -1,7 +1,42 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file:
+      - .env
+    environment:
+      PYTHONUNBUFFERED: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - haberrss
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import socket; socket.create_connection(('postgres',5432),3); socket.create_connection(('redis',6379),3); print('healthy')\""]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    stop_grace_period: 30s
+
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
+    init: true
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -9,35 +44,51 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./migrations/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql:ro
+    networks:
+      - haberrss
+    security_opt:
+      - no-new-privileges:true
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 5s
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
       timeout: 5s
-      retries: 20
+      retries: 10
+      start_period: 20s
+    stop_grace_period: 30s
 
   redis:
     image: redis:7-alpine
     restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes"]
+    init: true
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --save
+      - "60"
+      - "1000"
+      - --maxmemory-policy
+      - noeviction
     volumes:
       - redis_data:/data
+    networks:
+      - haberrss
+    security_opt:
+      - no-new-privileges:true
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    stop_grace_period: 20s
 
-  app:
-    build: .
-    restart: unless-stopped
-    env_file: .env
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    command: ["python", "-m", "haberrss.worker"]
+networks:
+  haberrss:
+    driver: bridge
 
 volumes:
   postgres_data:
+    driver: local
   redis_data:
+    driver: local
