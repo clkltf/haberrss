@@ -48,6 +48,21 @@ services:
         condition: service_completed_successfully
     command: ["python", "-m", "haberrss.worker"]
 
+  telegram:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      bootstrap:
+        condition: service_completed_successfully
+    command: ["python", "-m", "haberrss.telegram_signal"]
+    volumes:
+      - telegram_session:/data/telegram
+
   api:
     build: .
     restart: unless-stopped
@@ -64,3 +79,4 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  telegram_session:
