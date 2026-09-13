@@ -8,11 +8,13 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./migrations/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 20
+
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -21,65 +23,21 @@ services:
       - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-  bootstrap:
-    build: .
-    restart: "no"
-    env_file: .env
-    depends_on:
-      postgres:
-        condition: service_healthy
-    command: ["python", "-m", "haberrss.bootstrap"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
   app:
     build: .
     restart: unless-stopped
     env_file: .env
-    volumes:
-      - runtime_settings:/app/runtime
-    environment:
-      RUNTIME_SETTINGS_PATH: /app/runtime/runtime-settings.json
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-      bootstrap:
-        condition: service_completed_successfully
     command: ["python", "-m", "haberrss.worker"]
-  telegram:
-    build: .
-    restart: unless-stopped
-    env_file: .env
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      bootstrap:
-        condition: service_completed_successfully
-    command: ["python", "-m", "haberrss.telegram_signal"]
-    volumes:
-      - telegram_session:/data/telegram
-  api:
-    build: .
-    restart: unless-stopped
-    env_file: .env
-    volumes:
-      - runtime_settings:/app/runtime
-    environment:
-      RUNTIME_SETTINGS_PATH: /app/runtime/runtime-settings.json
-    depends_on:
-      postgres:
-        condition: service_healthy
-      bootstrap:
-        condition: service_completed_successfully
-    command: ["uvicorn", "haberrss.api:app", "--host", "0.0.0.0", "--port", "8080"]
-    ports:
-      - "127.0.0.1:8080:8080"
+
 volumes:
   postgres_data:
   redis_data:
-  telegram_session:
-  runtime_settings:
