@@ -1,46 +1,94 @@
-# HaberRSS Otomatik Sistem Taraması
+# HaberRSS System Scan
 
-- **Tarih:** 2026-09-13T19:03:24+03:00
-- **Sunucu:** 109-236-48-134.diyovm.com
-- **Git commit:** c576504
-- **Branch:** main
+Generated: 2026-09-13T19:06:32+03:00
 
-## Özet
-
-| Kontrol | Sonuç |
-|---|---:|
-| App | running |
-| App health | healthy |
-| PostgreSQL | true |
-| Redis | true |
-| News | 0 |
-| Sources | 33 |
-| Story clusters | 3072 |
-| Cluster articles | 0 |
-| Trends | 0 |
-| News son 1 saat | 0 |
-| News son 24 saat | 0 |
-| GDELT hata sayısı (son 500 log) | 5 |
-| App hata sayısı (son 500 log) | 15 |
-| Restarting servis sayısı | 0 |
-| Cluster P0 | false |
-
-## P0 / Kritik
-
-- **P1:** GDELT son loglarda 5 hata üretti.
-
-## Container Durumu
-
-```text
+## Docker
 NAME                  IMAGE                COMMAND                  SERVICE    CREATED          STATUS                    PORTS
-haberrss-app-1        haberrss-app         "python -m haberrss.…"   app        40 minutes ago   Up 40 minutes (healthy)   
-haberrss-postgres-1   postgres:16-alpine   "docker-entrypoint.s…"   postgres   40 minutes ago   Up 40 minutes (healthy)   5432/tcp
-haberrss-redis-1      redis:7-alpine       "docker-entrypoint.s…"   redis      40 minutes ago   Up 40 minutes (healthy)   6379/tcp
-```
+haberrss-app-1        haberrss-app         "python -m haberrss.…"   app        44 minutes ago   Up 43 minutes (healthy)   
+haberrss-postgres-1   postgres:16-alpine   "docker-entrypoint.s…"   postgres   44 minutes ago   Up 44 minutes (healthy)   5432/tcp
+haberrss-redis-1      redis:7-alpine       "docker-entrypoint.s…"   redis      44 minutes ago   Up 44 minutes (healthy)   6379/tcp
 
-## Son Collector Kayıtları
+## Images
+CONTAINER             REPOSITORY          TAG                 PLATFORM            IMAGE ID            SIZE                CREATED
+haberrss-app-1        haberrss-app        latest              linux/amd64         964b8310212f        293MB               44 minutes ago
+haberrss-postgres-1   postgres            16-alpine           linux/amd64         cf78e76683b9        419MB               4 weeks ago
+haberrss-redis-1      redis               7-alpine            linux/amd64         ff02b58f971e        57.3MB              3 weeks ago
 
-```text
+## PostgreSQL
+ current_database |                                         version                                          
+------------------+------------------------------------------------------------------------------------------
+ haberrss         | PostgreSQL 16.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+(1 row)
+
+ERROR:  relation "news" does not exist
+LINE 1: ...ELECT 'news' AS table_name,COUNT(*) AS count FROM news UNION...
+                                                             ^
+
+## Redis
+PONG
+
+## App Health
+Status=running Health=healthy Restarts=0
+
+## App Logs
+app-1  |   File "/app/haberrss/realtime.py", line 74, in collect_gdelt
+app-1  |     r = client.get(GDELT_URL, params={"query": "Turkey", "mode": "artlist", "maxrecords": 100, "format": "json", "timespan": "15m"})
+app-1  |     with map_httpcore_exceptions():
+app-1  |   File "/usr/local/lib/python3.12/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+app-1  | 2026-09-13 15:58:44,199 INFO haberrss.trend trend processed clusters=2957
+app-1  | 2026-09-13 15:58:50,193 INFO haberrss.collector source=Google News Son Dakika entries=100
+app-1  | 2026-09-13 15:58:50,885 INFO haberrss.collector source=Google News Gündem entries=100
+app-1  | 2026-09-13 15:58:51,521 INFO haberrss.collector source=Google News Siyaset entries=100
+app-1  | 2026-09-13 15:58:52,209 INFO haberrss.collector source=Google News Ekonomi entries=100
+app-1  | 2026-09-13 15:58:52,800 INFO haberrss.collector source=Google News Spor entries=100
+app-1  | 2026-09-13 15:58:53,446 INFO haberrss.collector source=Google News Teknoloji entries=100
+app-1  | 2026-09-13 15:58:54,095 INFO haberrss.collector source=Google News Magazin entries=100
+app-1  | 2026-09-13 15:58:54,851 INFO haberrss.collector source=Google News Dünya entries=100
+app-1  | 2026-09-13 15:58:55,760 INFO haberrss.collector source=Google News Deprem entries=92
+app-1  | 2026-09-13 15:58:56,588 INFO haberrss.collector source=Google News Yangın entries=100
+app-1  | 2026-09-13 15:58:57,498 INFO haberrss.collector source=Google News Kaza entries=100
+app-1  | 2026-09-13 15:58:58,180 INFO haberrss.collector source=Google Trends Türkiye entries=0
+app-1  | 2026-09-13 15:58:58,891 INFO haberrss.collector source=Google News Türkiye entries=34
+app-1  | 2026-09-13 15:58:59,771 INFO haberrss.collector source=Google News Patlama entries=100
+app-1  | 2026-09-13 15:59:00,473 INFO haberrss.collector source=Google News Hava Durumu entries=76
+app-1  | 2026-09-13 15:59:01,299 INFO haberrss.collector source=Google News Önemli entries=100
+app-1  | 2026-09-13 15:59:02,272 INFO haberrss.collector source=Google News Fenerbahçe entries=100
+app-1  | 2026-09-13 15:59:03,299 INFO haberrss.collector source=Google News Galatasaray entries=100
+app-1  | 2026-09-13 15:59:04,213 INFO haberrss.collector source=Google News Beşiktaş entries=100
+app-1  | 2026-09-13 15:59:05,115 INFO haberrss.collector source=Google News Trabzonspor entries=100
+app-1  | 2026-09-13 15:59:05,892 INFO haberrss.collector source=Google News Milli Takım entries=100
+app-1  | 2026-09-13 15:59:06,686 INFO haberrss.collector source=Google News Yapay Zeka entries=100
+app-1  | 2026-09-13 15:59:07,346 INFO haberrss.collector source=Google News Bitcoin entries=88
+app-1  | 2026-09-13 15:59:08,217 INFO haberrss.collector source=Google News Borsa entries=100
+app-1  | 2026-09-13 15:59:08,868 INFO haberrss.collector source=Google News Dolar entries=100
+app-1  | 2026-09-13 15:59:09,599 INFO haberrss.collector source=Google News Akaryakıt entries=100
+app-1  | 2026-09-13 15:59:10,509 INFO haberrss.collector source=Google News Zam entries=100
+app-1  | 2026-09-13 15:59:11,508 INFO haberrss.collector source=Google News Mahkeme entries=89
+app-1  | 2026-09-13 15:59:12,484 INFO haberrss.collector source=Google News Tutuklama entries=100
+app-1  | 2026-09-13 15:59:13,316 INFO haberrss.collector source=Google News İstifa entries=100
+app-1  | 2026-09-13 15:59:14,146 INFO haberrss.collector source=Google News Son Gelişme entries=100
+app-1  | 2026-09-13 15:59:14,949 INFO haberrss.collector source=Google News Flaş entries=100
+app-1  | 2026-09-13 15:59:14,950 INFO haberrss.worker collector inserted=15
+app-1  | 2026-09-13 15:59:29,396 INFO httpx HTTP Request: GET https://api.gdeltproject.org/api/v2/doc/doc?query=Turkey&mode=artlist&maxrecords=100&format=json&timespan=15m "HTTP/1.1 200 OK"
+app-1  | 2026-09-13 16:00:51,562 INFO haberrss.trend trend processed clusters=3065
+app-1  | 2026-09-13 16:00:57,387 INFO haberrss.collector source=Google News Gündem entries=100
+app-1  | 2026-09-13 16:00:58,026 INFO haberrss.collector source=Google News Siyaset entries=100
+app-1  | 2026-09-13 16:00:58,661 INFO haberrss.collector source=Google News Ekonomi entries=100
+app-1  | 2026-09-13 16:00:59,261 INFO haberrss.collector source=Google News Spor entries=100
+app-1  | 2026-09-13 16:00:59,931 INFO haberrss.collector source=Google News Teknoloji entries=100
+app-1  | 2026-09-13 16:01:00,624 INFO haberrss.collector source=Google News Magazin entries=100
+app-1  | 2026-09-13 16:01:01,552 INFO haberrss.collector source=Google News Dünya entries=100
+app-1  | 2026-09-13 16:01:02,973 INFO haberrss.collector source=Google News Deprem entries=92
+app-1  | 2026-09-13 16:01:03,783 INFO haberrss.collector source=Google News Yangın entries=100
+app-1  | 2026-09-13 16:01:04,623 INFO haberrss.collector source=Google News Kaza entries=100
+app-1  | 2026-09-13 16:01:05,496 INFO haberrss.collector source=Google Trends Türkiye entries=0
+app-1  | 2026-09-13 16:01:06,243 INFO haberrss.collector source=Google News Türkiye entries=34
+app-1  | 2026-09-13 16:01:07,249 INFO haberrss.collector source=Google News Son Dakika entries=100
+app-1  | 2026-09-13 16:01:25,171 INFO haberrss.collector source=GDELT Turkey 15m entries=0
+app-1  | 2026-09-13 16:01:26,156 INFO haberrss.collector source=Google News Patlama entries=100
+app-1  | 2026-09-13 16:01:26,878 INFO haberrss.collector source=Google News Flaş entries=100
+app-1  | 2026-09-13 16:01:28,282 INFO haberrss.collector source=Google News Önemli entries=100
+app-1  | 2026-09-13 16:01:29,093 INFO haberrss.collector source=Google News Fenerbahçe entries=100
 app-1  | 2026-09-13 16:01:29,957 INFO haberrss.collector source=Google News Galatasaray entries=100
 app-1  | 2026-09-13 16:01:30,701 INFO haberrss.collector source=Google News Beşiktaş entries=100
 app-1  | 2026-09-13 16:01:31,423 INFO haberrss.collector source=Google News Trabzonspor entries=100
@@ -56,84 +104,100 @@ app-1  | 2026-09-13 16:01:40,580 INFO haberrss.collector source=Google News Tutu
 app-1  | 2026-09-13 16:01:41,859 INFO haberrss.collector source=Google News İstifa entries=100
 app-1  | 2026-09-13 16:01:42,834 INFO haberrss.collector source=Google News Hava Durumu entries=76
 app-1  | 2026-09-13 16:01:43,948 INFO haberrss.collector source=Google News Son Gelişme entries=100
+app-1  | 2026-09-13 16:01:43,950 INFO haberrss.worker collector inserted=8
 app-1  | 2026-09-13 16:01:52,193 ERROR haberrss.realtime GDELT collector failed
+app-1  |   File "/usr/local/lib/python3.12/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+app-1  |     with map_exceptions(exc_map):
+app-1  |   File "/usr/local/lib/python3.12/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+app-1  | The above exception was the direct cause of the following exception:
+app-1  |   File "/app/haberrss/realtime.py", line 74, in collect_gdelt
 app-1  |     r = client.get(GDELT_URL, params={"query": "Turkey", "mode": "artlist", "maxrecords": 100, "format": "json", "timespan": "15m"})
+app-1  |     with map_httpcore_exceptions():
+app-1  |   File "/usr/local/lib/python3.12/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
 app-1  | 2026-09-13 16:03:22,648 INFO haberrss.trend trend processed clusters=3072
-```
-
-## Son Hatalar
-
-```text
-app-1  | 2026-09-13 15:55:43,837 ERROR haberrss.realtime GDELT collector failed
-app-1  | Traceback (most recent call last):
-app-1  | Traceback (most recent call last):
+app-1  | 2026-09-13 16:03:28,616 INFO haberrss.collector source=Google News Gündem entries=100
+app-1  | 2026-09-13 16:03:29,333 INFO haberrss.collector source=Google News Siyaset entries=100
+app-1  | 2026-09-13 16:03:30,120 INFO haberrss.collector source=Google News Ekonomi entries=100
+app-1  | 2026-09-13 16:03:30,833 INFO haberrss.collector source=Google News Spor entries=100
+app-1  | 2026-09-13 16:03:31,615 INFO haberrss.collector source=Google News Teknoloji entries=100
+app-1  | 2026-09-13 16:03:32,302 INFO haberrss.collector source=Google News Magazin entries=100
+app-1  | 2026-09-13 16:03:32,892 INFO haberrss.collector source=Google News Dünya entries=100
+app-1  | 2026-09-13 16:03:33,507 INFO haberrss.collector source=Google News Deprem entries=92
+app-1  | 2026-09-13 16:03:34,148 INFO haberrss.collector source=Google News Yangın entries=100
+app-1  | 2026-09-13 16:03:34,719 INFO haberrss.collector source=Google News Kaza entries=100
+app-1  | 2026-09-13 16:03:35,527 INFO haberrss.collector source=Google Trends Türkiye entries=0
+app-1  | 2026-09-13 16:03:36,167 INFO haberrss.collector source=Google News Türkiye entries=34
+app-1  | 2026-09-13 16:03:36,892 INFO haberrss.collector source=Google News Son Dakika entries=100
+app-1  | 2026-09-13 16:03:38,371 INFO haberrss.collector source=Google News Patlama entries=100
+app-1  | 2026-09-13 16:03:39,360 INFO haberrss.collector source=Google News Hava Durumu entries=76
+app-1  | 2026-09-13 16:03:40,597 INFO haberrss.collector source=Google News Son Gelişme entries=100
+app-1  | 2026-09-13 16:03:41,887 INFO haberrss.collector source=Google News Flaş entries=100
+app-1  | 2026-09-13 16:03:43,147 INFO haberrss.collector source=Google News Önemli entries=100
+app-1  | 2026-09-13 16:03:43,979 INFO haberrss.collector source=Google News Fenerbahçe entries=100
+app-1  | 2026-09-13 16:03:44,943 INFO haberrss.collector source=Google News Galatasaray entries=100
+app-1  | 2026-09-13 16:03:45,958 INFO haberrss.collector source=Google News Beşiktaş entries=100
+app-1  | 2026-09-13 16:03:46,628 INFO haberrss.collector source=Google News Trabzonspor entries=100
+app-1  | 2026-09-13 16:03:47,736 INFO haberrss.collector source=Google News Milli Takım entries=100
+app-1  | 2026-09-13 16:03:48,595 INFO haberrss.collector source=Google News Yapay Zeka entries=100
+app-1  | 2026-09-13 16:03:50,272 INFO haberrss.collector source=Google News Bitcoin entries=88
+app-1  | 2026-09-13 16:03:52,080 INFO haberrss.collector source=Google News Borsa entries=100
+app-1  | 2026-09-13 16:03:53,119 INFO haberrss.collector source=Google News Dolar entries=100
+app-1  | 2026-09-13 16:03:54,487 INFO haberrss.collector source=Google News Akaryakıt entries=100
+app-1  | 2026-09-13 16:03:55,546 INFO haberrss.collector source=Google News Zam entries=100
+app-1  | 2026-09-13 16:03:56,668 INFO haberrss.collector source=Google News Mahkeme entries=89
+app-1  | 2026-09-13 16:03:57,287 INFO haberrss.collector source=Google News Tutuklama entries=100
+app-1  | 2026-09-13 16:04:09,736 INFO haberrss.collector source=GDELT Turkey 15m entries=0
+app-1  | 2026-09-13 16:04:11,078 INFO haberrss.collector source=Google News İstifa entries=100
+app-1  | 2026-09-13 16:04:11,079 INFO haberrss.worker collector inserted=12
+app-1  | 2026-09-13 16:04:19,323 ERROR haberrss.realtime GDELT collector failed
+app-1  |   File "/usr/local/lib/python3.12/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+app-1  |     with map_exceptions(exc_map):
+app-1  |   File "/usr/local/lib/python3.12/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+app-1  | The above exception was the direct cause of the following exception:
+app-1  |   File "/app/haberrss/realtime.py", line 74, in collect_gdelt
 app-1  |     r = client.get(GDELT_URL, params={"query": "Turkey", "mode": "artlist", "maxrecords": 100, "format": "json", "timespan": "15m"})
-app-1  | 2026-09-13 15:57:37,019 ERROR haberrss.realtime GDELT collector failed
-app-1  | Traceback (most recent call last):
-app-1  | Traceback (most recent call last):
-app-1  |     r = client.get(GDELT_URL, params={"query": "Turkey", "mode": "artlist", "maxrecords": 100, "format": "json", "timespan": "15m"})
-app-1  | 2026-09-13 16:01:25,171 INFO haberrss.collector source=GDELT Turkey 15m entries=0
-app-1  | 2026-09-13 16:01:52,193 ERROR haberrss.realtime GDELT collector failed
-app-1  | Traceback (most recent call last):
-app-1  | Traceback (most recent call last):
-app-1  |     r = client.get(GDELT_URL, params={"query": "Turkey", "mode": "artlist", "maxrecords": 100, "format": "json", "timespan": "15m"})
-```
+app-1  |     with map_httpcore_exceptions():
+app-1  |   File "/usr/local/lib/python3.12/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+app-1  | 2026-09-13 16:05:35,029 INFO haberrss.trend trend processed clusters=3080
+app-1  | 2026-09-13 16:05:41,138 INFO haberrss.collector source=Google News Gündem entries=100
+app-1  | 2026-09-13 16:05:41,910 INFO haberrss.collector source=Google News Siyaset entries=100
+app-1  | 2026-09-13 16:05:42,606 INFO haberrss.collector source=Google News Ekonomi entries=100
+app-1  | 2026-09-13 16:05:43,313 INFO haberrss.collector source=Google News Spor entries=100
+app-1  | 2026-09-13 16:05:44,136 INFO haberrss.collector source=Google News Teknoloji entries=100
+app-1  | 2026-09-13 16:05:44,819 INFO haberrss.collector source=Google News Magazin entries=100
+app-1  | 2026-09-13 16:05:45,548 INFO haberrss.collector source=Google News Dünya entries=100
+app-1  | 2026-09-13 16:05:46,307 INFO haberrss.collector source=Google News Deprem entries=92
+app-1  | 2026-09-13 16:05:47,036 INFO haberrss.collector source=Google News Yangın entries=100
+app-1  | 2026-09-13 16:05:47,861 INFO haberrss.collector source=Google News Kaza entries=100
+app-1  | 2026-09-13 16:05:48,650 INFO haberrss.collector source=Google Trends Türkiye entries=0
+app-1  | 2026-09-13 16:05:49,293 INFO haberrss.collector source=Google News Türkiye entries=34
+app-1  | 2026-09-13 16:05:50,147 INFO haberrss.collector source=Google News Son Dakika entries=100
+app-1  | 2026-09-13 16:06:08,224 INFO haberrss.collector source=GDELT Turkey 15m entries=0
+app-1  | 2026-09-13 16:06:08,810 INFO haberrss.collector source=Google News İstifa entries=100
+app-1  | 2026-09-13 16:06:09,883 INFO haberrss.collector source=Google News Patlama entries=100
+app-1  | 2026-09-13 16:06:10,709 INFO haberrss.collector source=Google News Hava Durumu entries=76
+app-1  | 2026-09-13 16:06:11,991 INFO haberrss.collector source=Google News Son Gelişme entries=100
+app-1  | 2026-09-13 16:06:12,697 INFO haberrss.collector source=Google News Flaş entries=100
+app-1  | 2026-09-13 16:06:13,938 INFO haberrss.collector source=Google News Önemli entries=100
+app-1  | 2026-09-13 16:06:14,886 INFO haberrss.collector source=Google News Fenerbahçe entries=100
+app-1  | 2026-09-13 16:06:15,809 INFO haberrss.collector source=Google News Galatasaray entries=100
+app-1  | 2026-09-13 16:06:16,703 INFO haberrss.collector source=Google News Beşiktaş entries=100
+app-1  | 2026-09-13 16:06:17,552 INFO haberrss.collector source=Google News Trabzonspor entries=100
+app-1  | 2026-09-13 16:06:18,913 INFO haberrss.collector source=Google News Milli Takım entries=100
+app-1  | 2026-09-13 16:06:19,855 INFO haberrss.collector source=Google News Yapay Zeka entries=100
+app-1  | 2026-09-13 16:06:21,040 INFO haberrss.collector source=Google News Bitcoin entries=89
+app-1  | 2026-09-13 16:06:22,147 INFO haberrss.collector source=Google News Borsa entries=100
+app-1  | 2026-09-13 16:06:22,969 INFO haberrss.collector source=Google News Dolar entries=100
+app-1  | 2026-09-13 16:06:24,172 INFO haberrss.collector source=Google News Akaryakıt entries=100
+app-1  | 2026-09-13 16:06:25,830 INFO haberrss.collector source=Google News Zam entries=100
+app-1  | 2026-09-13 16:06:27,088 INFO haberrss.collector source=Google News Mahkeme entries=89
+app-1  | 2026-09-13 16:06:27,783 INFO haberrss.collector source=Google News Tutuklama entries=100
+app-1  | 2026-09-13 16:06:27,784 INFO haberrss.worker collector inserted=19
 
-## Veritabanı Kontrolleri
-
-```text
-news_by_source
-```
-
-## Kaynaklar
-
-```text
-1|Google News Türkiye|https://news.google.com/rss?hl=tr&gl=TR&ceid=TR:tr|genel
-2|Google News Son Dakika|https://news.google.com/rss/search?q=son%20dakika&hl=tr&gl=TR&ceid=TR:tr|son-dakika
-3|Google News Gündem|https://news.google.com/rss/search?q=Türkiye%20gündem&hl=tr&gl=TR&ceid=TR:tr|gundem
-4|Google News Siyaset|https://news.google.com/rss/search?q=siyaset%20Türkiye&hl=tr&gl=TR&ceid=TR:tr|siyaset
-5|Google News Ekonomi|https://news.google.com/rss/search?q=Türkiye%20ekonomi&hl=tr&gl=TR&ceid=TR:tr|ekonomi
-6|Google News Spor|https://news.google.com/rss/search?q=spor%20Türkiye&hl=tr&gl=TR&ceid=TR:tr|spor
-7|Google News Teknoloji|https://news.google.com/rss/search?q=teknoloji%20Türkiye&hl=tr&gl=TR&ceid=TR:tr|teknoloji
-8|Google News Magazin|https://news.google.com/rss/search?q=magazin%20Türkiye&hl=tr&gl=TR&ceid=TR:tr|magazin
-9|Google News Dünya|https://news.google.com/rss/search?q=dünya%20gündem&hl=tr&gl=TR&ceid=TR:tr|dunya
-10|Google News Deprem|https://news.google.com/rss/search?q=deprem%20Türkiye&hl=tr&gl=TR&ceid=TR:tr|afet
-11|Google News Yangın|https://news.google.com/rss/search?q=yangın%20Türkiye&hl=tr&gl=TR&ceid=TR:tr|afet
-12|Google News Kaza|https://news.google.com/rss/search?q=kaza%20Türkiye&hl=tr&gl=TR&ceid=TR:tr|afet
-13|Google News Patlama|https://news.google.com/rss/search?q=patlama%20Türkiye&hl=tr&gl=TR&ceid=TR:tr|afet
-14|Google News Hava Durumu|https://news.google.com/rss/search?q=sel%20fırtına%20kar%20Türkiye&hl=tr&gl=TR&ceid=TR:tr|hava
-15|Google News Son Gelişme|https://news.google.com/rss/search?q=son%20gelişme%20Türkiye&hl=tr&gl=TR&ceid=TR:tr|breaking
-16|Google News Flaş|https://news.google.com/rss/search?q=flaş%20Türkiye&hl=tr&gl=TR&ceid=TR:tr|breaking
-17|Google News Önemli|https://news.google.com/rss/search?q=önemli%20gelişme%20Türkiye&hl=tr&gl=TR&ceid=TR:tr|breaking
-18|Google News Fenerbahçe|https://news.google.com/rss/search?q=Fenerbahçe&hl=tr&gl=TR&ceid=TR:tr|spor
-19|Google News Galatasaray|https://news.google.com/rss/search?q=Galatasaray&hl=tr&gl=TR&ceid=TR:tr|spor
-20|Google News Beşiktaş|https://news.google.com/rss/search?q=Beşiktaş&hl=tr&gl=TR&ceid=TR:tr|spor
-21|Google News Trabzonspor|https://news.google.com/rss/search?q=Trabzonspor&hl=tr&gl=TR&ceid=TR:tr|spor
-22|Google News Milli Takım|https://news.google.com/rss/search?q=Milli%20Takım%20Türkiye&hl=tr&gl=TR&ceid=TR:tr|spor
-23|Google News Yapay Zeka|https://news.google.com/rss/search?q=yapay%20zeka&hl=tr&gl=TR&ceid=TR:tr|teknoloji
-24|Google News Bitcoin|https://news.google.com/rss/search?q=Bitcoin%20Türkiye&hl=tr&gl=TR&ceid=TR:tr|finans
-25|Google News Borsa|https://news.google.com/rss/search?q=Borsa%20İstanbul&hl=tr&gl=TR&ceid=TR:tr|finans
-26|Google News Dolar|https://news.google.com/rss/search?q=dolar%20TL&hl=tr&gl=TR&ceid=TR:tr|finans
-27|Google News Akaryakıt|https://news.google.com/rss/search?q=akaryakıt%20zam%20Türkiye&hl=tr&gl=TR&ceid=TR:tr|ekonomi
-28|Google News Zam|https://news.google.com/rss/search?q=zam%20Türkiye&hl=tr&gl=TR&ceid=TR:tr|ekonomi
-29|Google News Mahkeme|https://news.google.com/rss/search?q=mahkeme%20karar%20Türkiye&hl=tr&gl=TR&ceid=TR:tr|gundem
-30|Google News Tutuklama|https://news.google.com/rss/search?q=tutuklandı%20Türkiye&hl=tr&gl=TR&ceid=TR:tr|gundem
-31|Google News İstifa|https://news.google.com/rss/search?q=istifa%20Türkiye&hl=tr&gl=TR&ceid=TR:tr|gundem
-33|Google Trends Türkiye|https://trends.google.com/trendingsearches/daily/rss?geo=TR|trend-signal
-1118|GDELT Turkey 15m|https://api.gdeltproject.org/api/v2/doc/doc?query=Turkey&mode=artlist&maxrecords=100&format=json&timespan=15m|gdelt
-```
-
-## Son Haberler
-
-```text
-
-```
-
-## Git Durumu
-
-```text
- M reports/system-scan.md
- M scripts/haberrss-doctor.sh
- M scripts/haberrss-scan-push.sh
-?? docker-compose.simple.yml
-```
+## Telegram/Environment Presence
+TELEGRAM_API_ID=<SET_OR_EMPTY>
+TELEGRAM_API_HASH=<SET_OR_EMPTY>
+TELEGRAM_SESSION=<SET_OR_EMPTY>
+TELEGRAM_CHANNELS=<SET_OR_EMPTY>
+GEMINI_API_KEY=<SET_OR_EMPTY>
+X_API_KEY=<SET_OR_EMPTY>
