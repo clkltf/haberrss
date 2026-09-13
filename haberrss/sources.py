@@ -1,0 +1,17 @@
+SOURCES = [
+    ("Google News Türkiye", "https://news.google.com/rss?hl=tr&gl=TR&ceid=TR:tr", "genel"),
+    ("Google News Son Dakika", "https://news.google.com/rss/search?q=son%20dakika&hl=tr&gl=TR&ceid=TR:tr", "son-dakika"),
+    ("Google News Gündem", "https://news.google.com/rss/search?q=Türkiye%20gündem&hl=tr&gl=TR&ceid=TR:tr", "gundem"),
+    ("Google News Siyaset", "https://news.google.com/rss/search?q=siyaset%20Türkiye&hl=tr&gl=TR&ceid=TR:tr", "siyaset"),
+    ("Google News Ekonomi", "https://news.google.com/rss/search?q=Türkiye%20ekonomi&hl=tr&gl=TR&ceid=TR:tr", "ekonomi"),
+    ("Google News Spor", "https://news.google.com/rss/search?q=spor%20Türkiye&hl=tr&gl=TR&ceid=TR:tr", "spor"),
+    ("Google News Teknoloji", "https://news.google.com/rss/search?q=teknoloji%20Türkiye&hl=tr&gl=TR&ceid=TR:tr", "teknoloji"),
+    ("Google News Magazin", "https://news.google.com/rss/search?q=magazin%20Türkiye&hl=tr&gl=TR&ceid=TR:tr", "magazin"),
+    ("Google News Dünya", "https://news.google.com/rss/search?q=dünya%20gündem&hl=tr&gl=TR&ceid=TR:tr", "dunya"),
+    ("Google News Deprem", "https://news.google.com/rss/search?q=deprem%20Türkiye&hl=tr&gl=TR&ceid=TR:tr", "afet"),
+    ("Google News Yangın", "https://news.google.com/rss/search?q=yangın%20Türkiye&hl=tr&gl=TR&ceid=TR:tr", "afet"),
+    ("Google News Fenerbahçe", "https://news.google.com/rss/search?q=Fenerbahçe&hl=tr&gl=TR&ceid=TR:tr", "spor"),
+    ("Google News Galatasaray", "https://news.google.com/rss/search?q=Galatasaray&hl=tr&gl=TR&ceid=TR:tr", "spor"),
+    ("Google News Beşiktaş", "https://news.google.com/rss/search?q=Beşiktaş&hl=tr&gl=TR&ceid=TR:tr", "spor"),
+    ("Google News Yapay Zeka", "https://news.google.com/rss/search?q=yapay%20zeka&hl=tr&gl=TR&ceid=TR:tr", "teknoloji"),
+]
