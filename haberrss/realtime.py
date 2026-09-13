@@ -1,10 +1,8 @@
 """Free external early-signal collectors.
 
-These sources complement publisher RSS. They are intentionally best-effort: a
-failure never stops the main worker. GDELT is a broad news signal; Google
-Trends is a public rising-interest signal. Neither is assumed to be second-
-level realtime, so timestamps are kept explicit and scores remain signals,
-not facts.
+Best-effort collectors complement publisher RSS. A failure in one external
+source must never stop the main worker. GDELT is treated as a discovery signal,
+not as a source of truth.
 """
 import hashlib
 import logging
@@ -21,6 +19,7 @@ log = logging.getLogger("haberrss.realtime")
 
 TRENDS_URL = "https://trends.google.com/trendingsearches/daily/rss?geo=TR"
 GDELT_URL = "https://api.gdeltproject.org/api/v2/doc/doc"
+GDELT_QUERY = '(Turkey OR Türkiye OR Istanbul OR Ankara)'
 
 
 def _hash(title: str) -> str:
@@ -62,35 +61,72 @@ def collect_google_trends(conn) -> int:
         summary = re.sub(r"<[^>]+>", " ", getattr(e, "summary", ""))
         count += _insert(conn, source_id, f"[TREND] {title}", link or TRENDS_URL, summary, now, "trend-signal")
     conn.commit()
+    log.info("Google Trends collected=%s", count)
     return count
 
 
 def collect_gdelt(conn) -> int:
-    source_url = GDELT_URL + "?query=Turkey&mode=artlist&maxrecords=100&format=json&timespan=15m"
+    source_url = GDELT_URL + "?query=" + GDELT_QUERY + "&mode=artlist&maxrecords=100&format=json&timespan=15m&sort=datedesc"
     source_id = _source(conn, "GDELT Turkey 15m", source_url, "gdelt")
-    count = 0
+    params = {
+        "query": GDELT_QUERY,
+        "mode": "artlist",
+        "maxrecords": 100,
+        "format": "json",
+        "timespan": "15m",
+        "sort": "datedesc",
+    }
     try:
-        with httpx.Client(timeout=settings.source_timeout_seconds, follow_redirects=True) as client:
-            r = client.get(GDELT_URL, params={"query": "Turkey", "mode": "artlist", "maxrecords": 100, "format": "json", "timespan": "15m"})
+        with httpx.Client(
+            timeout=httpx.Timeout(settings.source_timeout_seconds, connect=min(settings.source_timeout_seconds, 5)),
+            follow_redirects=True,
+            headers={"User-Agent": "HaberRSS/1.0 (+news monitoring)"},
+        ) as client:
+            r = client.get(GDELT_URL, params=params)
             r.raise_for_status()
+            content_type = r.headers.get("content-type", "")
+            if "json" not in content_type.lower() and not r.text.lstrip().startswith("{"):
+                raise RuntimeError(f"unexpected GDELT response content-type={content_type!r}")
             data = r.json()
-        for item in data.get("articles", []):
+
+        if not isinstance(data, dict):
+            raise RuntimeError("GDELT response is not a JSON object")
+
+        articles = data.get("articles") or []
+        count = 0
+        for item in articles:
+            if not isinstance(item, dict):
+                continue
             title = str(item.get("title") or "").strip()
             url = str(item.get("url") or "").strip()
             domain = str(item.get("domain") or "GDELT")
-            ts = item.get("seendate")
+            ts = str(item.get("seendate") or "")
             published = None
-            if ts:
+            if len(ts) >= 14:
                 try:
                     published = datetime.strptime(ts[:14], "%Y%m%d%H%M%S").replace(tzinfo=timezone.utc)
                 except ValueError:
                     pass
             count += _insert(conn, source_id, title, url, domain, published, "gdelt")
+
+        with conn.cursor() as cur:
+            cur.execute(
+                "UPDATE sources SET last_success_at=NOW(), last_error_at=NULL, consecutive_errors=0 WHERE id=%s",
+                (source_id,),
+            )
         conn.commit()
-    except Exception:
+        log.info("GDELT collected=%s", count)
+        return count
+    except Exception as exc:
         conn.rollback()
-        log.exception("GDELT collector failed")
-    return count
+        with conn.cursor() as cur:
+            cur.execute(
+                "UPDATE sources SET last_error_at=NOW(), consecutive_errors=consecutive_errors+1 WHERE id=%s",
+                (source_id,),
+            )
+        conn.commit()
+        log.exception("GDELT collector failed: %s", exc)
+        return 0
 
 
 def collect_early_signals() -> int:
@@ -100,11 +136,13 @@ def collect_early_signals() -> int:
         try:
             total += collect_gdelt(conn)
         except Exception:
-            conn.rollback(); log.exception("GDELT signal failed")
+            conn.rollback()
+            log.exception("GDELT signal failed")
         try:
             total += collect_google_trends(conn)
         except Exception:
-            conn.rollback(); log.exception("Google Trends signal failed")
+            conn.rollback()
+            log.exception("Google Trends signal failed")
         return total
     finally:
         conn.close()
