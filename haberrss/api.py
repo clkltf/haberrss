@@ -1,22 +1,26 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.responses import JSONResponse
 import psycopg
-
 from .config import settings
+from .admin import router as admin_router
 
-app = FastAPI(title="HaberRSS", version="0.1.0")
+app = FastAPI(title="HaberRSS Control Plane", version="1.0.0")
+app.include_router(admin_router)
 
 @app.get("/health")
 def health():
-    db_ok = False
+    checks = {"postgres": False, "recent_ingest": False}
     try:
         with psycopg.connect(settings.database_url) as conn:
-            with conn.cursor() as cur:
-                cur.execute("SELECT 1")
-                db_ok = cur.fetchone() == (1,)
+            with conn.cursor() as c:
+                c.execute("SELECT 1")
+                checks["postgres"] = c.fetchone() == (1,)
+                c.execute("SELECT EXISTS(SELECT 1 FROM articles WHERE discovered_at >= NOW()-INTERVAL '10 minutes')")
+                checks["recent_ingest"] = c.fetchone()[0]
     except Exception:
-        db_ok = False
-    return JSONResponse({"status": "ok" if db_ok else "degraded", "postgres": db_ok})
+        pass
+    ok = all(checks.values())
+    return JSONResponse({"status": "ok" if ok else "degraded", "checks": checks})
 
 @app.get("/api/top-trends")
 def top_trends(limit: int = 20):
@@ -24,26 +28,13 @@ def top_trends(limit: int = 20):
     with psycopg.connect(settings.database_url) as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT id, canonical_title, category, article_count,
-                       source_count, trend_score, viral_score, state,
-                       last_seen_at
+                SELECT id, canonical_title, category, article_count, source_count,
+                       velocity_score, source_score, freshness_score, urgency_score,
+                       trend_score, viral_score, state, first_seen_at, last_seen_at
                 FROM story_clusters
                 WHERE last_seen_at >= NOW() - INTERVAL '24 hours'
-                ORDER BY viral_score DESC
-                LIMIT %s
+                ORDER BY viral_score DESC, last_seen_at DESC LIMIT %s
             """, (limit,))
             rows = cur.fetchall()
-    return [
-        {
-            "id": r[0],
-            "title": r[1],
-            "category": r[2],
-            "articles": r[3],
-            "sources": r[4],
-            "trend_score": float(r[5]),
-            "viral_score": float(r[6]),
-            "state": r[7],
-            "last_seen_at": r[8].isoformat(),
-        }
-        for r in rows
-    ]
+    keys = ["id","title","category","articles","sources","velocity","source_score","freshness","urgency","trend_score","viral_score","state","first_seen_at","last_seen_at"]
+    return [dict(zip(keys, [float(x) if isinstance(x, (int,float)) and i >= 5 and i <= 10 else x.isoformat() if hasattr(x,'isoformat') else x for i,x in enumerate(r)])) for r in rows]
