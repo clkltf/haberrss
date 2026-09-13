@@ -1,8 +1,8 @@
 # HaberRSS Otomatik Sistem Taraması
 
-- **Tarih:** 2026-09-13T19:02:14+03:00
+- **Tarih:** 2026-09-13T19:03:24+03:00
 - **Sunucu:** 109-236-48-134.diyovm.com
-- **Git commit:** 4832540
+- **Git commit:** c576504
 - **Branch:** main
 
 ## Özet
@@ -33,16 +33,14 @@
 
 ```text
 NAME                  IMAGE                COMMAND                  SERVICE    CREATED          STATUS                    PORTS
-haberrss-app-1        haberrss-app         "python -m haberrss.…"   app        39 minutes ago   Up 39 minutes (healthy)   
-haberrss-postgres-1   postgres:16-alpine   "docker-entrypoint.s…"   postgres   39 minutes ago   Up 39 minutes (healthy)   5432/tcp
-haberrss-redis-1      redis:7-alpine       "docker-entrypoint.s…"   redis      39 minutes ago   Up 39 minutes (healthy)   6379/tcp
+haberrss-app-1        haberrss-app         "python -m haberrss.…"   app        40 minutes ago   Up 40 minutes (healthy)   
+haberrss-postgres-1   postgres:16-alpine   "docker-entrypoint.s…"   postgres   40 minutes ago   Up 40 minutes (healthy)   5432/tcp
+haberrss-redis-1      redis:7-alpine       "docker-entrypoint.s…"   redis      40 minutes ago   Up 40 minutes (healthy)   6379/tcp
 ```
 
 ## Son Collector Kayıtları
 
 ```text
-app-1  | 2026-09-13 16:01:28,282 INFO haberrss.collector source=Google News Önemli entries=100
-app-1  | 2026-09-13 16:01:29,093 INFO haberrss.collector source=Google News Fenerbahçe entries=100
 app-1  | 2026-09-13 16:01:29,957 INFO haberrss.collector source=Google News Galatasaray entries=100
 app-1  | 2026-09-13 16:01:30,701 INFO haberrss.collector source=Google News Beşiktaş entries=100
 app-1  | 2026-09-13 16:01:31,423 INFO haberrss.collector source=Google News Trabzonspor entries=100
@@ -60,6 +58,7 @@ app-1  | 2026-09-13 16:01:42,834 INFO haberrss.collector source=Google News Hava
 app-1  | 2026-09-13 16:01:43,948 INFO haberrss.collector source=Google News Son Gelişme entries=100
 app-1  | 2026-09-13 16:01:52,193 ERROR haberrss.realtime GDELT collector failed
 app-1  |     r = client.get(GDELT_URL, params={"query": "Turkey", "mode": "artlist", "maxrecords": 100, "format": "json", "timespan": "15m"})
+app-1  | 2026-09-13 16:03:22,648 INFO haberrss.trend trend processed clusters=3072
 ```
 
 ## Son Hatalar
@@ -133,8 +132,8 @@ news_by_source
 ## Git Durumu
 
 ```text
+ M reports/system-scan.md
  M scripts/haberrss-doctor.sh
  M scripts/haberrss-scan-push.sh
 ?? docker-compose.simple.yml
-?? reports/
 ```
